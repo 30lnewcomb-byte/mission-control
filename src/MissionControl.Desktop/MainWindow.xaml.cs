@@ -318,7 +318,7 @@ public partial class MainWindow : Window
         SendChatButton.IsEnabled = false;
         ChatInput.IsEnabled = false;
         AiModelSelector.IsEnabled = false;
-        AiStatusText.Text = "ORI SMALL MC · THINKING";
+        AiStatusText.Text = IsOriPlatformSelected() ? "ORI PLATFORM · THINKING" : "ORI SMALL MC · THINKING";
 
         var thinkingLine = new ChatLine(IsOriPlatformSelected() ? "ORI PLATFORM" : "ORI SMALL MC", "Thinking…");
         ChatLines.Add(thinkingLine);
