@@ -40,6 +40,18 @@ Ori Small MC supports general conversation, learning, writing, brainstorming, co
 
 Planned next data sources are official NASA/SpaceX status and coverage links plus a weather provider for launch-site and home weather. A scheduled time from a calendar API alone is not sufficient evidence to switch to T+.
 
+## Windows desktop preview
+
+The first desktop dashboard is a native WPF application for Windows 10/11. On a Windows development machine with the .NET 8 SDK, create a self-contained Windows x64 preview ZIP by running:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\Publish-MissionControl.ps1
+```
+
+The output is `artifacts\MissionControl-win-x64.zip`. It contains the self-contained dashboard plus the optional local Ori Small MC setup script and model instructions; it does **not** include the multi-gigabyte Qwen model. The publish script only clears its own `artifacts\MissionControl` output directory and its generated ZIP before rebuilding.
+
+The GitHub Actions workflow also builds that ZIP on pushes to `main` and uploads it as the `MissionControl-Windows-x64-preview` artifact for 14 days. Find the latest runs at [GitHub Actions](https://github.com/30lnewcomb-byte/mission-control/actions). This is a preview package, not the promised one-command installer: it does not yet register a Windows widget, install an updater, or set up trusted liftoff status/weather/live coverage feeds.
+
 ## Development
 
 The .NET core is under `src/MissionControl.Core`. Run the test suite with `dotnet test tests/MissionControl.Core.Tests/MissionControl.Core.Tests.csproj --configuration Release`. See `docs/architecture.md` for current boundaries and next steps, and `scripts/Install-OriSmallMC.ps1` for local model setup. This is not yet a complete Windows desktop application.
