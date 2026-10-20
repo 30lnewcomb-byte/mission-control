@@ -204,6 +204,7 @@ public partial class MainWindow : Window
             SelectedLaunchName.Text = "Waiting for schedule data";
             SelectedLaunchStatus.Text = "SCHEDULE STATUS · NOT LOADED";
             SelectedLaunchSchedule.Text = "Scheduled time unavailable";
+            SelectedLaunchExplanation.Text = "Select a launch to see why its countdown is in this state.";
             SelectedLaunchCountdown.Text = "T− --:--:--";
             SelectedLaunchTrustText.Visibility = Visibility.Collapsed;
             return;
@@ -212,6 +213,7 @@ public partial class MainWindow : Window
         SelectedLaunchName.Text = selected.Name;
         SelectedLaunchStatus.Text = $"LL2 STATUS · {selected.StatusName.ToUpperInvariant()}";
         SelectedLaunchSchedule.Text = selected.ScheduledLabel;
+        SelectedLaunchExplanation.Text = selected.CountdownExplanation;
         SelectedLaunchCountdown.Text = selected.CountdownLabel;
         SelectedLaunchTrustText.Visibility = Visibility.Visible;
         SelectedLaunchTrustText.Text =

@@ -203,6 +203,12 @@
                                        FontSize="11"
                                        Foreground="#9AB0CA"
                                        Margin="0,5,0,0" />
+                            <TextBlock x:Name="SelectedLaunchExplanation"
+                                       Text="Waiting for countdown explanation."
+                                       FontSize="10"
+                                       Foreground="#C5D3E6"
+                                       Margin="0,6,0,0"
+                                       MaxWidth="480" />
                             <TextBlock x:Name="SelectedLaunchTrustText"
                                        Text="SCHEDULE DATA ONLY · NO LIFTOFF INFERENCE"
                                        FontSize="9"
