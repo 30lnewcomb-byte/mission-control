@@ -43,7 +43,7 @@ if (Get-Process -Name 'MissionControl.Desktop' -ErrorAction SilentlyContinue) {
 }
 
 Write-Host ''
-Write-Host 'MISSION CONTROL + ORI SMALL MC' -ForegroundColor Cyan
+Write-Host 'MISSION CONTROL + LOCAL AI' -ForegroundColor Cyan
 Write-Host 'Installing for the current Windows user. Administrator access is not required.'
 Write-Host ''
 
@@ -114,7 +114,7 @@ if (-not $SkipAiInstall) {
             Write-Host 'Local AI model setup finished.' -ForegroundColor Green
         }
         catch {
-            Write-Warning "Mission Control is installed, but Ori Small MC setup did not finish: $($_.Exception.Message)"
+            Write-Warning "Mission Control is installed, but local AI setup did not finish: $($_.Exception.Message)"
             Write-Warning "You can retry at any time from the Start menu entry 'Install AI Model'."
         }
     }
