@@ -54,7 +54,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\Publish-MissionControl.ps1
 
 The output is `artifacts\MissionControl-win-x64.zip`. It contains the self-contained dashboard plus the optional local Ori Small MC setup script and model instructions; it does **not** include the multi-gigabyte Qwen model. The publish script only clears its own `artifacts\MissionControl` output directory and its generated ZIP before rebuilding.
 
-The GitHub Actions workflow also builds that ZIP on pushes to `main` and uploads it as the `MissionControl-Windows-x64-preview` artifact for 14 days. Find the latest runs at [GitHub Actions](https://github.com/30lnewcomb-byte/mission-control/actions). This is a preview package, not the promised one-command installer: it does not yet register a Windows widget, install an updater, or set up trusted liftoff status/weather/live coverage feeds.
+The GitHub Actions workflow also builds that ZIP on pushes to `main`, generates a SHA-256 sidecar named `MissionControl-win-x64.zip.sha256`, and uploads both files as the `MissionControl-Windows-x64-preview` artifact for 14 days. Find the latest runs at [GitHub Actions](https://github.com/30lnewcomb-byte/mission-control/actions). This is a preview package, not the promised one-command installer: it does not yet register a Windows widget, install an updater, or set up trusted liftoff status/weather/live coverage feeds.
 
 ## Development
 
