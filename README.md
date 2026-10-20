@@ -5,11 +5,24 @@ Mission Control is a Windows 11 space-launch companion planned around two interf
 - A floating desktop dashboard for live countdowns, weather, mission details, and launch coverage.
 - A companion card in the actual Windows Widgets board.
 - One shared local core so both interfaces agree about launch status.
-- An optional small local AI that explains verified information; it never decides launch status or controls countdown math.
+- **Ori Small MC**, a local AI chat assistant powered by Qwen3.5 4B through Ollama. It can discuss general topics as well as space launches.
 
 ## Current status
 
-**Foundation stage — not yet an installable release.** The launch-status/countdown core is being established first. The one-command PowerShell installer will be published only after a real packaged build exists and has been tested on Windows 11.
+**Foundation and local-AI integration stage — not yet an installable app release.** The deterministic launch countdown core, core tests, Windows CI, an Ollama chat client, a model Modelfile, and a local model setup script are in the repository. The complete desktop UI, actual Windows Widgets provider, launch/weather data adapters, and final one-command app installer still need to be built and tested.
+
+## Ori Small MC
+
+- Model: `qwen3.5:4b`
+- Ollama model name: `ori-small-mc`
+- Local endpoint: `http://localhost:11434/api/chat`
+- Persistent instructions: `models/OriSmallMC.Modelfile`
+- Setup script: `scripts/Install-OriSmallMC.ps1`
+- .NET API client: `src/MissionControl.Core/OriSmallMcClient.cs`
+
+The setup script installs Ollama through Windows Package Manager when available, pulls the base model, and creates `ori-small-mc`. It can also be run after installing Ollama manually. The final Mission Control installer should call this setup as an optional component and explain the several-gigabyte download before starting it.
+
+Ori Small MC supports general conversation, learning, writing, brainstorming, coding, and other ordinary topics. Its Mission Control instructions remind it not to invent live data. Launch countdown math and authoritative launch states remain controlled by deterministic code.
 
 ## Project principles
 
@@ -19,6 +32,7 @@ Mission Control is a Windows 11 space-launch companion planned around two interf
 4. **Local-first.** Cache data, keep preferences locally, and make the local AI optional.
 5. **One backend, two interfaces.** The dashboard and Windows widget share the same state.
 6. **Safe installation.** The eventual one-paste installer must verify downloads and provide clear errors and uninstall/update paths.
+7. **Graceful AI fallback.** Mission Control must remain useful if Ollama is not installed or running.
 
 ## Planned data sources
 
@@ -30,4 +44,4 @@ A scheduled time from a calendar API alone is not sufficient evidence to switch 
 
 ## Development
 
-The current .NET core is under `src/MissionControl.Core`. The Windows UI, Windows widget provider, data adapters, local AI integration, and installer are planned follow-on milestones.
+The .NET core is under `src/MissionControl.Core`. See `docs/architecture.md` for the planned app structure and `scripts/Install-OriSmallMC.ps1` for the current local model setup. Repository code has not yet been validated as a complete Windows desktop application.
