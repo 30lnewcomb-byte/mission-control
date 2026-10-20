@@ -68,11 +68,14 @@ public partial class MainWindow : Window
     {
         // Keep countdown updates live while network and local-model checks run.
         _countdownTimer.Start();
-        _scheduleRefreshTimer.Start();
 
         await Task.WhenAll(
             RefreshLaunchesAsync(silent: true),
             RefreshAiStatusAsync());
+
+        // Start the ten-minute refresh interval after the initial fetch so the
+        // cache window has elapsed before the next scheduled refresh.
+        _scheduleRefreshTimer.Start();
     }
 
     private void MainWindow_Closed(object? sender, EventArgs e)
