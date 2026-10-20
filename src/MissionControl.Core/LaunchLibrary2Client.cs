@@ -212,10 +212,16 @@ public sealed class LaunchLibrary2Client
 
     private static string? ReadNestedString(JsonElement element, params string[] path)
     {
-        foreach (var propertyName in path)
+        for (var index = 0; index < path.Length; index++)
         {
-            if (!element.TryGetProperty(propertyName, out element) ||
-                element.ValueKind != JsonValueKind.Object)
+            if (element.ValueKind != JsonValueKind.Object ||
+                !element.TryGetProperty(path[index], out var child))
+            {
+                return null;
+            }
+
+            element = child;
+            if (index < path.Length - 1 && element.ValueKind != JsonValueKind.Object)
             {
                 return null;
             }
