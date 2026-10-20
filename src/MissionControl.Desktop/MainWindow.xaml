@@ -27,6 +27,7 @@
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
@@ -41,8 +42,7 @@
                     <StackPanel Margin="14,0,0,0" VerticalAlignment="Center">
                         <TextBlock Text="MISSION CONTROL"
                                    FontSize="18"
-                                   FontWeight="Bold"
-                                   CharacterSpacing="90" />
+                                   FontWeight="Bold" />
                         <TextBlock Text="U.S. SPACEFLIGHT  ·  DESKTOP DASHBOARD"
                                    FontSize="10"
                                    Foreground="{StaticResource MutedBrush}"
@@ -59,8 +59,17 @@
                            VerticalAlignment="Center"
                            Margin="0,0,18,0" />
 
+                <TextBlock x:Name="AiStatusText"
+                           Grid.Column="2"
+                           Text="ORI SMALL MC · CHECKING"
+                           Foreground="#82C9FF"
+                           FontSize="10"
+                           FontWeight="SemiBold"
+                           VerticalAlignment="Center"
+                           Margin="0,0,18,0" />
+
                 <Button x:Name="RefreshScheduleButton"
-                        Grid.Column="2"
+                        Grid.Column="3"
                         Content="REFRESH SCHEDULE"
                         Click="RefreshLaunches_Click"
                         VerticalAlignment="Center" />
@@ -89,8 +98,7 @@
                     <StackPanel Margin="0,0,0,16">
                         <TextBlock Text="UPCOMING U.S. LAUNCHES"
                                    FontSize="16"
-                                   FontWeight="Bold"
-                                   CharacterSpacing="55" />
+                                   FontWeight="Bold" />
                         <TextBlock Text="Launch-site country must be explicitly listed as US."
                                    Foreground="{StaticResource MutedBrush}"
                                    FontSize="11"
@@ -179,8 +187,7 @@
                             <TextBlock Text="SELECTED MISSION"
                                        FontSize="10"
                                        FontWeight="Bold"
-                                       Foreground="#71C0F9"
-                                       CharacterSpacing="80" />
+                                       Foreground="#71C0F9" />
                             <TextBlock x:Name="SelectedLaunchName"
                                        Text="Waiting for schedule data"
                                        FontSize="17"
@@ -196,6 +203,12 @@
                                        FontSize="11"
                                        Foreground="#9AB0CA"
                                        Margin="0,5,0,0" />
+                            <TextBlock x:Name="SelectedLaunchTrustText"
+                                       Text="SCHEDULE DATA ONLY · NO LIFTOFF INFERENCE"
+                                       FontSize="9"
+                                       Foreground="#E0B66C"
+                                       Margin="0,7,0,0"
+                                       Visibility="Collapsed" />
                         </StackPanel>
                         <StackPanel Grid.Column="1"
                                     HorizontalAlignment="Right"
@@ -214,15 +227,7 @@
                                        Margin="0,5,0,0"
                                        HorizontalAlignment="Right" />
                         </StackPanel>
-                        <TextBlock x:Name="SelectedLaunchTrustText"
-                                   Grid.ColumnSpan="2"
-                                   Text="SCHEDULE DATA ONLY · NO LIFTOFF INFERENCE"
-                                   FontSize="9"
-                                   Foreground="#E0B66C"
-                                   Margin="0,0,0,0"
-                                   VerticalAlignment="Bottom"
-                                   HorizontalAlignment="Left"
-                                   Visibility="Collapsed" />
+
                     </Grid>
                 </Border>
 
@@ -241,8 +246,7 @@
                         <StackPanel Margin="0,0,0,8">
                             <TextBlock Text="ORI SMALL MC"
                                        FontSize="16"
-                                       FontWeight="Bold"
-                                       CharacterSpacing="60" />
+                                       FontWeight="Bold" />
                             <TextBlock Text="GENERAL CHAT · LOCAL MODEL · SPACE IS OPTIONAL"
                                        FontSize="9"
                                        Foreground="{StaticResource MutedBrush}"
@@ -263,8 +267,7 @@
                                         <TextBlock Text="{Binding RoleLabel}"
                                                    FontSize="9"
                                                    FontWeight="Bold"
-                                                   Foreground="#69BFFF"
-                                                   CharacterSpacing="50" />
+                                                   Foreground="#69BFFF" />
                                         <TextBlock Text="{Binding Content}"
                                                    FontSize="13"
                                                    Foreground="#E0E8F5"
