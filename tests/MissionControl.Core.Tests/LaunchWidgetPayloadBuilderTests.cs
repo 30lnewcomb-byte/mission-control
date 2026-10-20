@@ -55,7 +55,7 @@ public sealed class LaunchWidgetPayloadBuilderTests
         var payload = LaunchWidgetPayloadBuilder.Create(launch, Now);
 
         using var data = JsonDocument.Parse(payload.DataJson);
-        Assert.Equal("LIFTOFF TIME UNCONFIRMED",
+        Assert.Equal("STATUS UNKNOWN",
             data.RootElement.GetProperty("countdownLabel").GetString());
         Assert.Contains("STATUS UNVERIFIED",
             data.RootElement.GetProperty("statusLabel").GetString());
