@@ -59,6 +59,13 @@ public sealed class LaunchLibrary2Client
     }
 
     /// <summary>
+    /// Timestamp of the most recent fully parsed, successful source response.
+    /// This remains unchanged when a later refresh fails, so the UI can label stale data honestly.
+    /// </summary>
+    public DateTimeOffset? LastSuccessfulFetchAtUtc =>
+        _cachedLaunches is null ? null : _cachedAtUtc;
+
+    /// <summary>
     /// Returns a cached successful result for the cache window, otherwise refreshes
     /// from LL2. Network and schema errors are surfaced instead of being disguised
     /// as fresh data; callers can retain their own last-known-good snapshot.

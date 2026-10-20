@@ -126,12 +126,44 @@ public sealed class LaunchLibrary2ClientTests
         using var httpClient = new HttpClient(handler);
         var client = new LaunchLibrary2Client(httpClient, cacheDuration: TimeSpan.FromMinutes(5));
 
+        Assert.Null(client.LastSuccessfulFetchAtUtc);
         var first = await client.GetUpcomingLaunchesAsync();
+        var fetchedAtUtc = client.LastSuccessfulFetchAtUtc;
         var second = await client.GetUpcomingLaunchesAsync();
 
         Assert.Empty(first);
         Assert.Same(first, second);
+        Assert.NotNull(fetchedAtUtc);
+        Assert.Equal(fetchedAtUtc, client.LastSuccessfulFetchAtUtc);
         Assert.Equal(1, requestCount);
+    }
+
+    [Fact]
+    public async Task FailedRefreshKeepsTimestampOfLastSuccessfulResponse()
+    {
+        var requestCount = 0;
+        var handler = new StubHttpMessageHandler((_, _) =>
+        {
+            requestCount++;
+            return Task.FromResult(requestCount == 1
+                ? JsonResponse(HttpStatusCode.OK, """{"results":[]}""")
+                : JsonResponse(HttpStatusCode.TooManyRequests, "API rate limit exceeded."));
+        });
+        using var httpClient = new HttpClient(handler);
+        var client = new LaunchLibrary2Client(
+            httpClient,
+            cacheDuration: TimeSpan.FromMilliseconds(1));
+
+        _ = await client.GetUpcomingLaunchesAsync();
+        var lastSuccessfulFetchAtUtc = client.LastSuccessfulFetchAtUtc;
+        await Task.Delay(20);
+
+        await Assert.ThrowsAsync<HttpRequestException>(
+            () => client.GetUpcomingLaunchesAsync());
+
+        Assert.NotNull(lastSuccessfulFetchAtUtc);
+        Assert.Equal(lastSuccessfulFetchAtUtc, client.LastSuccessfulFetchAtUtc);
+        Assert.Equal(2, requestCount);
     }
 
     [Fact]
