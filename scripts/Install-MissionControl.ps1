@@ -9,20 +9,24 @@ $ErrorActionPreference = 'Stop'
 
 $packageRoot = [System.IO.Path]::GetFullPath($PSScriptRoot)
 $packageExe = Join-Path $packageRoot 'MissionControl.Desktop.exe'
-$packageAiSetup = Join-Path $packageRoot 'scripts\Install-OriSmallMC.ps1'
+$packageAiSetup = Join-Path $packageRoot 'scripts\Install-AI-Model.ps1'
+$packageOriPlatformSetup = Join-Path $packageRoot 'scripts\Install-OriPlatformAI.ps1'
+$packageQwenSetup = Join-Path $packageRoot 'scripts\Install-OriSmallMC.ps1'
 $packageModelFile = Join-Path $packageRoot 'models\OriSmallMC.Modelfile'
 
 if (-not (Test-Path -LiteralPath $packageExe -PathType Leaf)) {
     throw 'MissionControl.Desktop.exe is missing. Extract the complete Mission Control Windows ZIP, then run Install-MissionControl.ps1 from its top-level folder.'
 }
 if (-not (Test-Path -LiteralPath $packageAiSetup -PathType Leaf) -or
+    -not (Test-Path -LiteralPath $packageOriPlatformSetup -PathType Leaf) -or
+    -not (Test-Path -LiteralPath $packageQwenSetup -PathType Leaf) -or
     -not (Test-Path -LiteralPath $packageModelFile -PathType Leaf)) {
-    throw 'Ori Small MC setup files are missing. Extract the complete Mission Control Windows ZIP and try again.'
+    throw 'One or more AI setup files are missing. Extract the complete Mission Control Windows ZIP and try again.'
 }
 
 $installDirectory = Join-Path $env:LOCALAPPDATA 'Programs\Mission Control'
 $installedExe = Join-Path $installDirectory 'MissionControl.Desktop.exe'
-$installedAiSetup = Join-Path $installDirectory 'scripts\Install-OriSmallMC.ps1'
+$installedAiSetup = Join-Path $installDirectory 'scripts\Install-AI-Model.ps1'
 $startMenuDirectory = Join-Path $env:APPDATA 'Microsoft\Windows\Start Menu\Programs\Mission Control'
 $desktopDirectory = [Environment]::GetFolderPath('Desktop')
 
@@ -71,12 +75,12 @@ if (-not $NoStartMenuShortcut) {
     $startShortcut.Description = 'Mission Control space-launch dashboard'
     $startShortcut.Save()
 
-    $aiShortcutPath = Join-Path $startMenuDirectory 'Install Ori Small MC.lnk'
+    $aiShortcutPath = Join-Path $startMenuDirectory 'Install AI Model.lnk'
     $aiShortcut = $shortcutShell.CreateShortcut($aiShortcutPath)
     $aiShortcut.TargetPath = Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe'
     $aiShortcut.Arguments = '-NoProfile -ExecutionPolicy Bypass -File "' + $installedAiSetup + '"'
     $aiShortcut.WorkingDirectory = $installDirectory
-    $aiShortcut.Description = 'Install or repair the local Ori Small MC AI model'
+    $aiShortcut.Description = 'Install, repair, or choose Mission Control local AI model'
     $aiShortcut.Save()
 }
 
@@ -100,26 +104,26 @@ Write-Host 'Created a Start menu entry and desktop shortcut (unless disabled wit
 Write-Host ''
 
 if (-not $SkipAiInstall) {
-    Write-Host 'Ori Small MC is the general-purpose chat assistant; it can discuss ordinary topics as well as space launches.'
-    Write-Host 'Its first setup downloads Ollama/Qwen model data totaling several gigabytes.'
-    Write-Host 'The model runs locally on this PC; this installer does not upload your chats.'
-    $answer = Read-Host 'Install Ori Small MC now? Press Enter or type Y for yes, N to skip'
+    Write-Host 'Mission Control supports two local AI models: Ori Platform TensorFlow and Ori Small MC (Qwen3.5 4B).'
+    Write-Host 'Ori Platform setup trains its compact model on this PC and may take a while; Qwen downloads several gigabytes.'
+    Write-Host 'Both are local inference options. Mission Control does not upload chat messages to a remote AI API.'
+    $answer = Read-Host 'Install a local AI model now? Press Enter or type Y for yes, N to skip'
     if ($answer -notmatch '^(n|no)$') {
         try {
             & $installedAiSetup
-            Write-Host 'Ori Small MC setup finished.' -ForegroundColor Green
+            Write-Host 'Local AI model setup finished.' -ForegroundColor Green
         }
         catch {
             Write-Warning "Mission Control is installed, but Ori Small MC setup did not finish: $($_.Exception.Message)"
-            Write-Warning "You can retry at any time from the Start menu entry 'Install Ori Small MC'."
+            Write-Warning "You can retry at any time from the Start menu entry 'Install AI Model'."
         }
     }
     else {
-        Write-Host "Skipped AI setup. Install it later from the Start menu entry 'Install Ori Small MC'." -ForegroundColor Yellow
+        Write-Host "Skipped AI setup. Install it later from the Start menu entry 'Install AI Model'." -ForegroundColor Yellow
     }
 }
 else {
-    Write-Host "Skipped AI setup because -SkipAiInstall was specified. Use 'Install Ori Small MC' from the Start menu later." -ForegroundColor Yellow
+    Write-Host "Skipped AI setup because -SkipAiInstall was specified. Use 'Install AI Model' from the Start menu later." -ForegroundColor Yellow
 }
 
 Write-Host ''
