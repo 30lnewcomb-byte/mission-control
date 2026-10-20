@@ -40,6 +40,10 @@ Ori Small MC supports general conversation, learning, writing, brainstorming, co
 
 Planned next data sources are official NASA/SpaceX status and coverage links plus a weather provider for launch-site and home weather. A scheduled time from a calendar API alone is not sufficient evidence to switch to T+.
 
+## Schedule freshness and local AI controls
+
+The desktop dashboard refreshes the launch schedule on a ten-minute cadence and displays the last successful source-fetch time. A failed refresh keeps the last-known-good records visible while marking the feed unavailable; this remains schedule metadata, not authoritative liftoff telemetry. The chat panel includes a manual local-model status check so Ori Small MC can be rechecked after Ollama starts.
+
 ## Windows desktop preview
 
 The first desktop dashboard is a native WPF application for Windows 10/11. On a Windows development machine with the .NET 8 SDK, create a self-contained Windows x64 preview ZIP by running:

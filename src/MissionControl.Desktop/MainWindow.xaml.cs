@@ -33,6 +33,11 @@ public partial class MainWindow : Window
         Interval = TimeSpan.FromSeconds(1)
     };
 
+    private readonly DispatcherTimer _scheduleRefreshTimer = new()
+    {
+        Interval = TimeSpan.FromMinutes(10)
+    };
+
     private readonly List<OriChatMessage> _conversationHistory = [];
     private bool _refreshingSchedule;
     private bool _sendingChat;
@@ -50,6 +55,7 @@ public partial class MainWindow : Window
             "This dashboard uses real launch schedule data when available. Ori Small MC is a general-purpose local chat assistant; it does not invent official liftoff confirmations."));
 
         _countdownTimer.Tick += CountdownTimer_Tick;
+        _scheduleRefreshTimer.Tick += ScheduleRefreshTimer_Tick;
         Loaded += MainWindow_Loaded;
         Closed += MainWindow_Closed;
     }
@@ -60,16 +66,19 @@ public partial class MainWindow : Window
 
     private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
     {
+        // Keep countdown updates live while network and local-model checks run.
+        _countdownTimer.Start();
+        _scheduleRefreshTimer.Start();
+
         await Task.WhenAll(
             RefreshLaunchesAsync(silent: true),
             RefreshAiStatusAsync());
-
-        _countdownTimer.Start();
     }
 
     private void MainWindow_Closed(object? sender, EventArgs e)
     {
         _countdownTimer.Stop();
+        _scheduleRefreshTimer.Stop();
         _launchHttpClient.Dispose();
         _ollamaHttpClient.Dispose();
     }
@@ -82,6 +91,21 @@ public partial class MainWindow : Window
 
     private async void RefreshLaunches_Click(object sender, RoutedEventArgs e) =>
         await RefreshLaunchesAsync(silent: false);
+
+    private async void CheckAiStatus_Click(object sender, RoutedEventArgs e)
+    {
+        CheckAiStatusButton.IsEnabled = false;
+        CheckAiStatusButton.Content = "CHECKING…";
+        try
+        {
+            await RefreshAiStatusAsync();
+        }
+        finally
+        {
+            CheckAiStatusButton.IsEnabled = true;
+            CheckAiStatusButton.Content = "CHECK AI";
+        }
+    }
 
     private async Task RefreshLaunchesAsync(bool silent)
     {
@@ -100,18 +124,26 @@ public partial class MainWindow : Window
 
             // Replace the visible collection only after a complete, valid response.
             // A failed refresh therefore leaves any previously displayed records intact.
+            // Keep the user's selected mission stable across a successful refresh.
+            var selectedLaunchId = (LaunchesList.SelectedItem as LaunchRow)?.State.LaunchId;
             Launches.Clear();
             foreach (var launch in fetchedLaunches)
             {
                 Launches.Add(new LaunchRow(launch));
             }
 
+            var sourceUpdated = _launchClient.LastSuccessfulFetchAtUtc?.ToString("HH:mm 'UTC'")
+                ?? "time unavailable";
             LaunchFeedStatusText.Text = $"SCHEDULE FEED · {Launches.Count} U.S. RECORDS";
             LaunchCountSummary.Text = Launches.Count == 0
-                ? "No upcoming U.S. launch records were returned by the schedule feed."
-                : $"{Launches.Count} U.S. records · Launch Library 2 schedule metadata only";
+                ? $"No upcoming U.S. launch records were returned. Source observed {sourceUpdated}."
+                : $"{Launches.Count} U.S. records · Source observed {sourceUpdated} · schedule metadata only";
 
-            LaunchesList.SelectedIndex = Launches.Count > 0 ? 0 : -1;
+            var selectedLaunch = selectedLaunchId is null
+                ? null
+                : Launches.FirstOrDefault(launch =>
+                    string.Equals(launch.State.LaunchId, selectedLaunchId, StringComparison.Ordinal));
+            LaunchesList.SelectedItem = selectedLaunch ?? Launches.FirstOrDefault();
             UpdateSelectedLaunch();
         }
         catch (Exception exception) when (
@@ -122,8 +154,10 @@ public partial class MainWindow : Window
             InvalidOperationException)
         {
             LaunchFeedStatusText.Text = "SCHEDULE FEED · UNAVAILABLE";
+            var lastSuccessfulFetch = _launchClient.LastSuccessfulFetchAtUtc?.ToString("HH:mm 'UTC'")
+                ?? "unavailable";
             LaunchCountSummary.Text = Launches.Count > 0
-                ? $"{Launches.Count} previously loaded records remain visible; refresh failed."
+                ? $"{Launches.Count} previously loaded records remain visible. Last successful source fetch: {lastSuccessfulFetch}; data may be stale."
                 : "No schedule data loaded. Check the connection and retry.";
 
             if (!silent || Launches.Count == 0)
@@ -202,6 +236,9 @@ public partial class MainWindow : Window
 
         UpdateSelectedLaunch();
     }
+
+    private async void ScheduleRefreshTimer_Tick(object? sender, EventArgs e) =>
+        await RefreshLaunchesAsync(silent: true);
 
     private void LaunchesList_SelectionChanged(object sender, SelectionChangedEventArgs e) =>
         UpdateSelectedLaunch();
