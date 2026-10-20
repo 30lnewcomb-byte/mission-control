@@ -36,7 +36,7 @@ if (Test-Path $archivePath) {
 Write-Host ''
 Write-Host 'Mission Control - Windows preview publisher' -ForegroundColor Cyan
 Write-Host 'Publishing a self-contained Windows x64 desktop build...' -ForegroundColor Cyan
-Write-Host 'The package includes the unified installer; the multi-gigabyte model weights are fetched during AI setup.'
+Write-Host 'The package includes one installer flow for Ori Platform TensorFlow or Qwen/Ollama; model data is fetched or trained during AI setup.'
 Write-Host ''
 
 $publishArgs = @(
@@ -66,6 +66,8 @@ $modelDirectory = Join-Path $outputDirectory 'models'
 New-Item -ItemType Directory -Path $aiScriptDirectory -Force | Out-Null
 New-Item -ItemType Directory -Path $modelDirectory -Force | Out-Null
 Copy-Item -LiteralPath (Join-Path $repoRoot 'scripts\Install-OriSmallMC.ps1') -Destination (Join-Path $aiScriptDirectory 'Install-OriSmallMC.ps1') -Force
+Copy-Item -LiteralPath (Join-Path $repoRoot 'scripts\Install-OriPlatformAI.ps1') -Destination (Join-Path $aiScriptDirectory 'Install-OriPlatformAI.ps1') -Force
+Copy-Item -LiteralPath (Join-Path $repoRoot 'scripts\Install-AI-Model.ps1') -Destination (Join-Path $aiScriptDirectory 'Install-AI-Model.ps1') -Force
 Copy-Item -LiteralPath (Join-Path $repoRoot 'models\OriSmallMC.Modelfile') -Destination (Join-Path $modelDirectory 'OriSmallMC.Modelfile') -Force
 Copy-Item -LiteralPath (Join-Path $repoRoot 'scripts\Install-MissionControl.ps1') -Destination (Join-Path $outputDirectory 'Install-MissionControl.ps1') -Force
 
@@ -77,15 +79,17 @@ MISSION CONTROL - WINDOWS X64 PREVIEW
        .\Install-MissionControl.ps1
 3. The installer copies Mission Control into your user Programs folder and
    creates Start menu and desktop shortcuts. Administrator access is not needed.
-4. The installer offers to install Ori Small MC too. Its first setup downloads
-   Ollama and the Qwen3.5 4B base model (several gigabytes); press Enter to
-   accept the default Yes, or type N to skip. The model weights are not bundled
-   in this ZIP. If skipped or if setup fails, use the Start menu entry
-   "Install Ori Small MC" to retry later.
-5. Ori Small MC is a general-purpose local chat assistant, not just a launch bot.
-   Chats are sent to the Ollama service on this PC; Mission Control does not
-   upload them to a remote AI API.
-6. This is still an early preview. A real Windows Widgets provider, weather
+4. The installer offers to install a local AI model. The default choice is
+   Ori Platform's native TensorFlow model, trained on this PC from a pinned
+   Ori Platform source snapshot and public-domain English texts. This can take
+   a while, and native Windows TensorFlow uses Python 3.10.
+5. You can instead select Ori Small MC (Qwen3.5 4B) with Ollama; that downloads
+   several gigabytes. You can install both and switch models in the chat panel.
+   Neither model's weights are bundled in this preview ZIP.
+6. Chat inference runs locally. The Ori Platform option is a compact experimental
+   model and may be less capable than Qwen3.5 4B. The local model setup does not
+   modify the hosted Ori Platform Render service.
+7. This is still an early preview. A real Windows Widgets provider, weather
    integration, official live coverage/status adapters, signed installer,
    updater, and uninstaller are not included yet.
 

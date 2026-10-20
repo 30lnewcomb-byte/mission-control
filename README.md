@@ -9,20 +9,33 @@ Mission Control is a Windows 11 space-launch companion planned around two interf
 
 ## Current status
 
-**Foundation stage — not yet an installable app release.** The repository contains the deterministic countdown core, a WPF desktop dashboard, Windows CI, the Ori Small MC Ollama client/setup, and a Launch Library 2 upcoming-launch reader with response caching and a US launch-site filter. Regression tests cover countdown rules, AI chat requests/errors, and LL2 schedule parsing, caching, US filtering, malformed responses, and launch-status trust boundaries. The preview ZIP now includes a per-user PowerShell installer that installs the desktop app and offers to set up Ori Small MC. A polished signed installer, updater/uninstaller, actual Windows Widgets provider, authoritative NASA/SpaceX status and coverage adapters, weather integration, and shared local service remain unfinished.
+**Experimental desktop preview.** The repository contains the deterministic countdown core, a WPF desktop dashboard, Windows CI, the Ori Small MC Ollama client, and an experimental local Ori Platform TensorFlow option. The preview installer offers either model and packages the matching setup scripts. Regression tests cover countdown rules, AI chat requests/errors, and LL2 schedule parsing/caching/US filtering. A polished signed installer, updater/uninstaller, actual Windows Widgets provider, authoritative NASA/SpaceX status and coverage adapters, weather integration, and shared local service remain unfinished.
 
-## Ori Small MC
+## Local AI models
 
-- Model: `qwen3.5:4b`
+Mission Control can use either of two local chat models, selectable above the chat:
+
+- **Ori Platform · TensorFlow** — the native compact language-model architecture and training pipeline from the public Ori Platform repository. Its setup uses a pinned source commit, installs Python 3.10 with native Windows TensorFlow CPU 2.10.1, and trains the model locally from the included training data plus public-domain English texts. This is an experimental, small model and may be less capable than Qwen. Its weights are not the same checkpoint as the hosted Render model.
+- **Ori Small MC · Qwen3.5 4B** — the separate local Qwen model through Ollama. Its setup downloads the Qwen base model and creates a customized `ori-small-mc` from `models/OriSmallMC.Modelfile`.
+
+Both choices answer general questions as well as spaceflight questions. Chat history is sent only to the chosen local runtime on the same PC. Mission Control does not forward these chat messages to a remote AI API.
+
+### Ori Platform local model setup
+
+The setup script is `scripts/Install-OriPlatformAI.ps1`, usually launched through `scripts/Install-AI-Model.ps1`. It does not modify the hosted Render service. The script downloads a pinned snapshot of the source repo, installs the Windows CPU runtime in a private virtual environment, and trains local weights. First-time training may take a while; it requires internet access to download the source and public-domain training texts.
+
+The local runtime binds to `127.0.0.1:8765` only. Mission Control creates a local runtime key and starts the service when the Ori Platform option is first used. The service is stopped when Mission Control closes. If model setup is skipped or fails, use the Start menu shortcut **Install AI Model** to retry or pick Qwen instead.
+
+### Ori Small MC setup
+
+- Base model: `qwen3.5:4b`
 - Ollama model name: `ori-small-mc`
 - Local endpoint: `http://localhost:11434/api/chat`
 - Persistent instructions: `models/OriSmallMC.Modelfile`
 - Setup script: `scripts/Install-OriSmallMC.ps1`
 - .NET API client: `src/MissionControl.Core/OriSmallMcClient.cs`
 
-The setup script installs Ollama through Windows Package Manager when available, pulls the base model, and creates `ori-small-mc`. The preview package's `Install-MissionControl.ps1` installs the app and offers to run this AI setup, explaining the multi-gigabyte download first. If AI setup is skipped or fails, a Start menu shortcut can run it later. The Qwen weights are downloaded during setup rather than included in the app ZIP.
-
-Ori Small MC supports general conversation, learning, writing, brainstorming, coding, and other ordinary topics. Its Mission Control instructions remind it not to invent live data. Launch countdown math and authoritative launch states remain controlled by deterministic code.
+The Qwen setup installs Ollama through Windows Package Manager when available, pulls the base model, and creates `ori-small-mc`. The multi-gigabyte model weights are downloaded during setup rather than bundled in the app ZIP.
 
 ## Project principles
 
@@ -48,9 +61,9 @@ The first desktop dashboard is a native WPF application for Windows 10/11. On a 
 powershell -ExecutionPolicy Bypass -File .\scripts\Publish-MissionControl.ps1
 ```
 
-The output is `artifacts\MissionControl-win-x64.zip`. It contains the self-contained dashboard, the integrated `Install-MissionControl.ps1` entry point, the Ori Small MC setup script, and its Modelfile; it does **not** include the multi-gigabyte Qwen weights. Extract the ZIP, open PowerShell in that folder, and run `.\Install-MissionControl.ps1`. The installer creates per-user Start menu and desktop shortcuts, then offers to install the local model. The publish script only clears its own `artifacts\MissionControl` output directory and generated ZIP before rebuilding.
+The output is `artifacts\MissionControl-win-x64.zip`. It contains the self-contained dashboard, `Install-MissionControl.ps1`, and setup scripts for both local AI options. It does not contain pre-trained Ori Platform weights or the multi-gigabyte Qwen base model. Extract the ZIP, open PowerShell in that folder, and run `.\Install-MissionControl.ps1`. The installer creates per-user Start menu and desktop shortcuts, then offers to install a local model. The publish script only clears its own `artifacts\MissionControl` output directory and generated ZIP before rebuilding.
 
-The GitHub Actions workflow also builds that ZIP on pushes to `main` and uploads it as the `MissionControl-Windows-x64-preview` artifact for 14 days. Find the latest runs at [GitHub Actions](https://github.com/30lnewcomb-byte/mission-control/actions). This remains a preview package rather than a polished signed release: the installer does not yet register the Windows widget, install an updater/uninstaller, or set up trusted liftoff status, weather, and live-coverage feeds.
+The GitHub Actions workflow also builds that ZIP on pushes to `main` and uploads it as the `MissionControl-Windows-x64-preview` artifact for 14 days. Find the latest runs at [GitHub Actions](https://github.com/30lnewcomb-byte/mission-control/actions). This remains a preview package rather than a polished signed release: the installer does not yet register the Windows widget, install an updater/uninstaller, or set up trusted liftoff status, weather, and live-coverage feeds. The experimental native Ori model is trained at install time, not downloaded as a pre-trained checkpoint.
 
 ## Development
 

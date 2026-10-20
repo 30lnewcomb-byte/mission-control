@@ -28,6 +28,8 @@ public partial class MainWindow : Window
 
     private readonly LaunchLibrary2Client _launchClient;
     private readonly OriSmallMcClient _oriClient;
+    private readonly OriPlatformLocalClient _oriPlatformClient;
+    private bool _initializingUi = true;
     private readonly DispatcherTimer _countdownTimer = new()
     {
         Interval = TimeSpan.FromSeconds(1)
@@ -44,10 +46,12 @@ public partial class MainWindow : Window
         DataContext = this;
         _launchClient = new LaunchLibrary2Client(_launchHttpClient);
         _oriClient = new OriSmallMcClient(_ollamaHttpClient);
+        _oriPlatformClient = new OriPlatformLocalClient();
+        _initializingUi = false;
 
         ChatLines.Add(new ChatLine(
             "MISSION CONTROL",
-            "This dashboard uses real launch schedule data when available. Ori Small MC is a general-purpose local chat assistant; it does not invent official liftoff confirmations."));
+            "This dashboard uses real launch schedule data when available. Choose Ori Platform TensorFlow or Ori Small MC (Qwen) below; both chat models run locally. Countdown truth stays in deterministic code."));
 
         _countdownTimer.Tick += CountdownTimer_Tick;
         Loaded += MainWindow_Loaded;
@@ -72,6 +76,7 @@ public partial class MainWindow : Window
         _countdownTimer.Stop();
         _launchHttpClient.Dispose();
         _ollamaHttpClient.Dispose();
+        _oriPlatformClient.Dispose();
     }
 
     private void PinWindowButton_Click(object sender, RoutedEventArgs e)
@@ -79,6 +84,19 @@ public partial class MainWindow : Window
         Topmost = !Topmost;
         PinWindowButton.Content = Topmost ? "UNPIN WINDOW" : "PIN WINDOW";
     }
+
+    private async void AiModelSelector_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_initializingUi)
+        {
+            return;
+        }
+
+        await RefreshAiStatusAsync();
+    }
+
+    private bool IsOriPlatformSelected() =>
+        (AiModelSelector.SelectedItem as ComboBoxItem)?.Tag?.ToString() == "ori-platform";
 
     private async void RefreshLaunches_Click(object sender, RoutedEventArgs e) =>
         await RefreshLaunchesAsync(silent: false);
@@ -141,6 +159,15 @@ public partial class MainWindow : Window
     private async Task RefreshAiStatusAsync()
     {
         AiStatusTextFallback();
+
+        if (IsOriPlatformSelected())
+        {
+            AiStatusText.Text = _oriPlatformClient.IsInstalled
+                ? "ORI PLATFORM · LOCAL MODEL INSTALLED"
+                : "ORI PLATFORM · SETUP REQUIRED";
+            return;
+        }
+
         try
         {
             using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(2));
@@ -189,7 +216,7 @@ public partial class MainWindow : Window
 
     private void AiStatusTextFallback()
     {
-        AiStatusText.Text = "ORI SMALL MC · CHECKING";
+        AiStatusText.Text = "AI MODEL · CHECKING";
     }
 
     private void CountdownTimer_Tick(object? sender, EventArgs e)
@@ -290,20 +317,23 @@ public partial class MainWindow : Window
         _sendingChat = true;
         SendChatButton.IsEnabled = false;
         ChatInput.IsEnabled = false;
-        AiStatusText.Text = "ORI SMALL MC · THINKING";
+        AiModelSelector.IsEnabled = false;
+        AiStatusText.Text = IsOriPlatformSelected() ? "ORI PLATFORM · THINKING" : "ORI SMALL MC · THINKING";
 
-        var thinkingLine = new ChatLine("ORI SMALL MC", "Thinking…");
+        var thinkingLine = new ChatLine(IsOriPlatformSelected() ? "ORI PLATFORM" : "ORI SMALL MC", "Thinking…");
         ChatLines.Add(thinkingLine);
         ScrollChatToBottom();
 
         try
         {
-            var reply = await _oriClient.ChatAsync(_conversationHistory);
+            var reply = IsOriPlatformSelected()
+                ? await _oriPlatformClient.ChatAsync(_conversationHistory)
+                : await _oriClient.ChatAsync(_conversationHistory);
             _conversationHistory.Add(new OriChatMessage("assistant", reply));
             TrimConversationHistory();
 
             ChatLines.Remove(thinkingLine);
-            ChatLines.Add(new ChatLine("ORI SMALL MC", reply));
+            ChatLines.Add(new ChatLine(IsOriPlatformSelected() ? "ORI PLATFORM" : "ORI SMALL MC", reply));
             AiStatusText.Text = "ORI SMALL MC · READY";
         }
         catch (Exception exception) when (
@@ -321,16 +351,19 @@ public partial class MainWindow : Window
 
             ChatLines.Remove(thinkingLine);
             var explanation = exception is TaskCanceledException
-                ? "The local model took too long to answer. Try again when Ori Small MC is ready."
-                : "I couldn't reach Ori Small MC. Make sure Ollama is running and the ori-small-mc model is installed. From the repository, run scripts\\Install-OriSmallMC.ps1.";
+                ? "The local model took too long to answer. Try again after it is ready."
+                : IsOriPlatformSelected()
+                    ? "I couldn't reach Ori Platform's local TensorFlow model. Run 'Install AI Model' from the Start menu and choose option 1. " + exception.Message
+                    : "I couldn't reach Ori Small MC. Make sure Ollama is running and ori-small-mc is installed; then run 'Install AI Model' and choose option 2.";
             ChatLines.Add(new ChatLine("MISSION CONTROL", explanation));
-            AiStatusText.Text = "ORI SMALL MC · UNAVAILABLE";
+            AiStatusText.Text = IsOriPlatformSelected() ? "ORI PLATFORM · UNAVAILABLE" : "ORI SMALL MC · UNAVAILABLE";
         }
         finally
         {
             _sendingChat = false;
             SendChatButton.IsEnabled = true;
             ChatInput.IsEnabled = true;
+            AiModelSelector.IsEnabled = true;
             ChatInput.Focus();
             ScrollChatToBottom();
         }
