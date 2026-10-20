@@ -21,7 +21,13 @@ Official coverage links ──────────────────�
 
 ## Launch state is not a clock
 
-A launch can be scheduled, delayed, scrubbed, in progress, completed, or unknown. A scheduled timestamp only drives T−. The core must switch to T+ only after an authoritative source reports confirmed liftoff / launch in progress. If sources disagree or confirmation is missing, show the known state and source freshness rather than guessing.
+A launch can be scheduled, delayed, scrubbed, in progress, completed, or unknown. A scheduled timestamp only drives T−. The core must switch to T+ only when the canonical state includes a confirmed liftoff timestamp from a trusted source. If sources disagree or confirmation is missing, show the known state and source freshness rather than guessing.
+
+## Launch Library 2 schedule reader
+
+`LaunchLibrary2Client` in `src/MissionControl.Core/LaunchLibrary2Client.cs` reads the [LL2 v2.3.0 upcoming-launch endpoint](https://ll.thespacedevs.com/2.3.0/launches/upcoming/). It requests a small upcoming list, hides recently-past records, caches a successful response for ten minutes by default, and offers a US-only helper based on an explicit launch-site country code. The public API documentation lists a 15-request-per-hour limit for unauthenticated clients, so the cache is intentional.
+
+The adapter is not a source of authoritative liftoff telemetry. It preserves the provider's status label and schedule metadata, maps only known schedule states, and **never sets `LiftoffAtUtc`**. Even an LL2 “Launch in Flight” label remains unknown in the canonical state until a trusted status adapter confirms it. Errors and unexpected response shapes are surfaced instead of being disguised as fresh data.
 
 ## Interfaces
 
@@ -48,12 +54,12 @@ The app must preserve the conversation history in its chat UI and send prior use
 - Keep Ollama bound to the local machine by default. Do not expose its API to the LAN or internet as part of setup.
 - The chat can be general-purpose; it should not force every answer into a space theme.
 
-## Planned milestones
+## Milestones
 
-1. Deterministic launch state and countdown core.
-2. Automated tests for schedule changes, scrubs, uncertain status, and confirmed liftoff.
-3. LL2 and trusted-status adapters with cache/rate-limit handling.
-4. Local Ori Small MC API client and repeatable model setup.
-5. Windows 11 desktop dashboard with general chat, shared local service, and status/weather views.
+1. **Present:** deterministic launch state/countdown core and Windows CI tests.
+2. **Present:** local Ori Small MC Ollama client and repeatable model setup.
+3. **Added; CI validation in progress:** cached LL2 schedule reader, explicit US launch-site filter, conservative state mapping, and tests.
+4. **Next:** trusted NASA/SpaceX status adapter, official coverage resolver, weather provider, and durable shared cache.
+5. Windows 11 desktop dashboard with general chat, launch/weather views, and a shared local service.
 6. Packaged Windows Widgets provider.
 7. Verified one-command installer, updater, and uninstaller, with optional Ollama/model installation.
