@@ -25,6 +25,30 @@ jobs:
         shell: pwsh
         run: ./scripts/Publish-MissionControl.ps1
 
+      - name: Verify preview ZIP includes app installer and AI files
+        shell: pwsh
+        run: |
+          $zipPath = Join-Path $env:GITHUB_WORKSPACE 'artifacts/MissionControl-win-x64.zip'
+          $checkDirectory = Join-Path $env:RUNNER_TEMP 'mission-control-package-check'
+          if (Test-Path -LiteralPath $checkDirectory) {
+            Remove-Item -LiteralPath $checkDirectory -Recurse -Force
+          }
+          New-Item -ItemType Directory -Path $checkDirectory -Force | Out-Null
+          Expand-Archive -LiteralPath $zipPath -DestinationPath $checkDirectory -Force
+          $requiredPaths = @(
+            'MissionControl.Desktop.exe',
+            'Install-MissionControl.ps1',
+            'scripts\Install-OriSmallMC.ps1',
+            'models\OriSmallMC.Modelfile',
+            'README.txt'
+          )
+          foreach ($relativePath in $requiredPaths) {
+            $fullPath = Join-Path $checkDirectory $relativePath
+            if (-not (Test-Path -LiteralPath $fullPath -PathType Leaf)) {
+              throw "Preview ZIP is missing required file: $relativePath"
+            }
+          }
+
       - name: Upload Windows preview ZIP
         uses: actions/upload-artifact@v4
         with:
