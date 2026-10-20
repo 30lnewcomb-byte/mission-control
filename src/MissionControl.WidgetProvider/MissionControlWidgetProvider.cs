@@ -23,7 +23,7 @@ public sealed class MissionControlWidgetProvider : IWidgetProvider
     {
         if (!string.Equals(widgetContext.DefinitionId, DefinitionId, StringComparison.Ordinal))
         {
-            WidgetManager.GetDefault().DeleteWidget(widgetContext.Id);
+            // Never delete an ID merely because it did not match this provider.
             return;
         }
 
