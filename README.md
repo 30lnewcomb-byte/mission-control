@@ -9,7 +9,7 @@ Mission Control is a Windows 11 space-launch companion planned around two interf
 
 ## Current status
 
-**Foundation stage — not yet an installable app release.** The repository contains the deterministic countdown core, Windows CI, the Ori Small MC Ollama client/setup, and a Launch Library 2 upcoming-launch reader with response caching and a US launch-site filter. Automated coverage is being added for the AI client and schedule reader. The desktop UI, actual Windows Widgets provider, authoritative NASA/SpaceX status and coverage adapters, weather integration, shared local service, and final one-command installer are still unfinished.
+**Foundation stage — not yet an installable app release.** The repository contains the deterministic countdown core, Windows CI, the Ori Small MC Ollama client/setup, and a Launch Library 2 upcoming-launch reader with response caching and a US launch-site filter. Regression tests cover the countdown rules, Ori Small MC chat requests/errors, and LL2 schedule parsing, caching, US filtering, malformed responses, and launch-status trust boundaries. The Windows CI workflow also builds the WPF desktop dashboard. The desktop UI, actual Windows Widgets provider, authoritative NASA/SpaceX status and coverage adapters, weather integration, shared local service, and final one-command installer are still unfinished.
 
 ## Ori Small MC
 

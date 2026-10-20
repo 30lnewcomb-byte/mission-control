@@ -1,3 +1,5 @@
+using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Collections.ObjectModel;
 using System.Net.Http;
@@ -208,6 +210,7 @@ public partial class MainWindow : Window
             SelectedLaunchExplanation.Text = "Select a launch to see why its countdown is in this state.";
             SelectedLaunchCountdown.Text = "T− --:--:--";
             SelectedLaunchTrustText.Visibility = Visibility.Collapsed;
+            OpenLaunchDetailsButton.IsEnabled = false;
             return;
         }
 
@@ -219,6 +222,31 @@ public partial class MainWindow : Window
         SelectedLaunchTrustText.Visibility = Visibility.Visible;
         SelectedLaunchTrustText.Text =
             "SCHEDULE DATA ONLY · A TRUSTED LIFTOFF TIMESTAMP IS NOT CONNECTED";
+        OpenLaunchDetailsButton.IsEnabled =
+            selected.Source.DetailsUri is { } detailsUri &&
+            detailsUri.Scheme == Uri.UriSchemeHttps &&
+            string.Equals(detailsUri.Host, "ll.thespacedevs.com", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private void OpenLaunchDetails_Click(object sender, RoutedEventArgs e)
+    {
+        if (LaunchesList.SelectedItem is not LaunchRow selected ||
+            selected.Source.DetailsUri is not { } detailsUri ||
+            detailsUri.Scheme != Uri.UriSchemeHttps ||
+            !string.Equals(detailsUri.Host, "ll.thespacedevs.com", StringComparison.OrdinalIgnoreCase))
+        {
+            AddStatusMessage("A trusted Launch Library 2 record link is not available for this launch.");
+            return;
+        }
+
+        try
+        {
+            Process.Start(new ProcessStartInfo(detailsUri.AbsoluteUri) { UseShellExecute = true });
+        }
+        catch (Exception exception) when (exception is Win32Exception or InvalidOperationException)
+        {
+            AddStatusMessage($"Windows could not open the launch record: {exception.Message}");
+        }
     }
 
     private async void SendChat_Click(object sender, RoutedEventArgs e) =>

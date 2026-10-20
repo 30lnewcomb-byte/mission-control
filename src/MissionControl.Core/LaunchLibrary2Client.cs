@@ -161,10 +161,7 @@ public sealed class LaunchLibrary2Client
             LiftoffAtUtc: null,
             StatusNote: statusNote);
 
-        var detailsUrl = ReadString(item, "url");
-        Uri? detailsUri = Uri.TryCreate(detailsUrl, UriKind.Absolute, out var parsedUri)
-            ? parsedUri
-            : null;
+        var detailsUri = ReadTrustedDetailsUri(ReadString(item, "url"));
 
         return new LaunchLibrary2Launch(
             state,
@@ -174,6 +171,21 @@ public sealed class LaunchLibrary2Client
             ReadNestedString(item, "pad", "location", "name"),
             ReadNestedString(item, "pad", "location", "country", "alpha_2_code"),
             detailsUri);
+    }
+
+    private static Uri? ReadTrustedDetailsUri(string? value)
+    {
+        if (!Uri.TryCreate(value, UriKind.Absolute, out var uri))
+        {
+            return null;
+        }
+
+        // The API record link is opened by the desktop shell, so only trust
+        // HTTPS links whose host is exactly the Launch Library 2 domain.
+        return string.Equals(uri.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase) &&
+               string.Equals(uri.Host, "ll.thespacedevs.com", StringComparison.OrdinalIgnoreCase)
+            ? uri
+            : null;
     }
 
     private static LaunchPhase MapPhase(string statusName)

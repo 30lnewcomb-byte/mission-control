@@ -88,6 +88,33 @@ public sealed class LaunchLibrary2ClientTests
     }
 
     [Fact]
+    public async Task GetUpcomingLaunchesAsyncRejectsExternalDetailsLinks()
+    {
+        const string payload = """
+        {
+          "results": [
+            {
+              "id": "suspicious-1",
+              "name": "Suspicious Details Link",
+              "net": "2026-10-21T16:00:00Z",
+              "status": { "name": "Go for Launch" },
+              "url": "https://example.com/redirect-to-something"
+            }
+          ]
+        }
+        """;
+
+        var handler = new StubHttpMessageHandler(
+            (_, _) => Task.FromResult(JsonResponse(HttpStatusCode.OK, payload)));
+        using var httpClient = new HttpClient(handler);
+        var client = new LaunchLibrary2Client(httpClient);
+
+        var launch = Assert.Single(await client.GetUpcomingLaunchesAsync());
+
+        Assert.Null(launch.DetailsUri);
+    }
+
+    [Fact]
     public async Task GetUpcomingLaunchesAsyncCachesSuccessfulResultsDuringCacheWindow()
     {
         var requestCount = 0;

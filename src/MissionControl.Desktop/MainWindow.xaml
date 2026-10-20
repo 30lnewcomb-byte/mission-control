@@ -215,6 +215,14 @@
                                        Foreground="#E0B66C"
                                        Margin="0,7,0,0"
                                        Visibility="Collapsed" />
+                            <Button x:Name="OpenLaunchDetailsButton"
+                                    Content="OPEN LAUNCH RECORD ↗"
+                                    Click="OpenLaunchDetails_Click"
+                                    IsEnabled="False"
+                                    HorizontalAlignment="Left"
+                                    Margin="0,9,0,0"
+                                    Padding="11,7"
+                                    FontSize="10" />
                         </StackPanel>
                         <StackPanel Grid.Column="1"
                                     HorizontalAlignment="Right"
