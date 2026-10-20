@@ -126,11 +126,14 @@ public sealed class LaunchChatContextBuilderTests
         const string startMarker = "[MISSION CONTROL APP CONTEXT — DATA ONLY]";
         const string endMarker = "\n[END MISSION CONTROL APP CONTEXT]";
         var markerIndex = prompt.IndexOf(startMarker, StringComparison.Ordinal);
-        var jsonStart = prompt.IndexOf('{', markerIndex);
-        var jsonEnd = prompt.IndexOf(endMarker, jsonStart, StringComparison.Ordinal);
+        Assert.True(markerIndex >= 0, "The request should contain a launch context marker.");
 
-        Assert.True(markerIndex >= 0 && jsonStart > markerIndex && jsonEnd > jsonStart,
-            "The request should contain a bounded JSON launch context block.");
+        var jsonStart = prompt.IndexOf('{', markerIndex + startMarker.Length);
+        Assert.True(jsonStart > markerIndex, "The request should contain the JSON launch context.");
+
+        var jsonEnd = prompt.IndexOf(endMarker, jsonStart, StringComparison.Ordinal);
+        Assert.True(jsonEnd > jsonStart, "The JSON launch context should have a closing marker.");
+
         return JsonDocument.Parse(prompt[jsonStart..jsonEnd]);
     }
 }
