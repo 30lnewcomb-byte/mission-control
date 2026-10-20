@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 jobs:
-  test-core:
+  test-core-and-build-desktop:
     runs-on: windows-latest
     steps:
       - name: Check out repository
@@ -18,5 +18,8 @@ jobs:
         with:
           dotnet-version: 8.0.x
 
-      - name: Test countdown rules
+      - name: Test core behavior
         run: dotnet test tests/MissionControl.Core.Tests/MissionControl.Core.Tests.csproj --configuration Release
+
+      - name: Build Windows desktop dashboard
+        run: dotnet build src/MissionControl.Desktop/MissionControl.Desktop.csproj --configuration Release
