@@ -134,6 +134,7 @@ try {
         Remove-Item -LiteralPath $ServiceRoot -Recurse -Force
     }
     New-Item -ItemType Directory -Path $LocalRoot -Force | Out-Null
+    New-Item -ItemType Directory -Path (Split-Path -Parent $ServiceRoot) -Force | Out-Null
     Copy-Item -LiteralPath $sourceServiceRoot -Destination $ServiceRoot -Recurse -Force
 }
 finally {
