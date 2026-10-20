@@ -25,9 +25,11 @@ public sealed class LaunchWidgetPayloadBuilderTests
         Assert.Equal("AdaptiveCard", template.RootElement.GetProperty("type").GetString());
         Assert.Equal("T−00:30:00", data.RootElement.GetProperty("countdownLabel").GetString());
         Assert.Contains("SCHEDULED", data.RootElement.GetProperty("statusLabel").GetString());
+        var recordAction = template.RootElement.GetProperty("actions").EnumerateArray()
+            .Single(action => action.GetProperty("type").GetString() == "Action.OpenUrl");
         Assert.Equal(
             "https://ll.thespacedevs.com/2.3.0/launches/widget-test/",
-            template.RootElement.GetProperty("actions")[0].GetProperty("url").GetString());
+            recordAction.GetProperty("url").GetString());
     }
 
     [Fact]
