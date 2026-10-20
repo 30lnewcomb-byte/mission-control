@@ -273,6 +273,13 @@
                                        FontSize="9"
                                        Foreground="{StaticResource MutedBrush}"
                                        Margin="0,4,0,0" />
+                            <TextBlock x:Name="ChatContextStatusText"
+                                       Text="CONTEXT · No launch selected; general chat only"
+                                       FontSize="9"
+                                       Foreground="#8EA5C2"
+                                       Margin="0,4,0,0"
+                                       MaxWidth="520"
+                                       TextTrimming="CharacterEllipsis" />
                         </StackPanel>
 
                         <ListBox x:Name="ChatMessagesList"

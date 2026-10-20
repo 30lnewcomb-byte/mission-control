@@ -210,6 +210,7 @@ public partial class MainWindow : Window
     {
         if (LaunchesList.SelectedItem is not LaunchRow selected)
         {
+            ChatContextStatusText.Text = "CONTEXT · No launch selected; general chat only";
             SelectedLaunchName.Text = "Waiting for schedule data";
             SelectedLaunchStatus.Text = "SCHEDULE STATUS · NOT LOADED";
             SelectedLaunchSchedule.Text = "Scheduled time unavailable";
@@ -220,6 +221,7 @@ public partial class MainWindow : Window
             return;
         }
 
+        ChatContextStatusText.Text = $"CONTEXT · {selected.Name} · LL2 SCHEDULE METADATA ONLY";
         SelectedLaunchName.Text = selected.Name;
         SelectedLaunchStatus.Text = $"LL2 STATUS · {selected.StatusName.ToUpperInvariant()}";
         SelectedLaunchSchedule.Text = selected.ScheduledLabel;
@@ -298,7 +300,26 @@ public partial class MainWindow : Window
 
         try
         {
-            var reply = await _oriClient.ChatAsync(_conversationHistory);
+            // Add the selected launch only to this request. Keep app context out of
+            // persistent conversation history so switching launches cannot leave stale facts behind.
+            var requestMessages = _conversationHistory.ToList();
+            var selectedLaunch = LaunchesList.SelectedItem is LaunchRow selectedLaunchRow
+                ? selectedLaunchRow.Source
+                : null;
+            if (requestMessages.Count > 0 &&
+                string.Equals(requestMessages[^1].Role, "user", StringComparison.Ordinal))
+            {
+                var latestMessage = requestMessages[^1];
+                requestMessages[^1] = latestMessage with
+                {
+                    Content = LaunchChatContextBuilder.AddSelectedLaunchContext(
+                        latestMessage.Content,
+                        selectedLaunch,
+                        DateTimeOffset.UtcNow)
+                };
+            }
+
+            var reply = await _oriClient.ChatAsync(requestMessages);
             _conversationHistory.Add(new OriChatMessage("assistant", reply));
             TrimConversationHistory();
 
