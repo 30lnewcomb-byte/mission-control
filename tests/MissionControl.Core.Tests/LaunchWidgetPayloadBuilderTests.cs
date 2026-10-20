@@ -72,7 +72,10 @@ public sealed class LaunchWidgetPayloadBuilderTests
         Assert.Contains("never confirms liftoff",
             data.RootElement.GetProperty("explanation").GetString());
         using var template = JsonDocument.Parse(payload.TemplateJson);
-        Assert.False(template.RootElement.TryGetProperty("actions", out _));
+        var actions = template.RootElement.GetProperty("actions");
+        Assert.Equal("refresh", actions[0].GetProperty("verb").GetString());
+        Assert.DoesNotContain(actions.EnumerateArray(),
+            action => action.GetProperty("type").GetString() == "Action.OpenUrl");
     }
 
     [Fact]
@@ -86,7 +89,9 @@ public sealed class LaunchWidgetPayloadBuilderTests
         var payload = LaunchWidgetPayloadBuilder.Create(launch, Now);
 
         using var template = JsonDocument.Parse(payload.TemplateJson);
-        Assert.False(template.RootElement.TryGetProperty("actions", out _));
+        Assert.DoesNotContain(
+            template.RootElement.GetProperty("actions").EnumerateArray(),
+            action => action.GetProperty("type").GetString() == "Action.OpenUrl");
     }
 
     private static LaunchLibrary2Launch NewLaunch(

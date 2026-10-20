@@ -47,17 +47,22 @@ public static class LaunchWidgetPayloadBuilder
                 new { type = "TextBlock", text = "${statusLabel}", size = "small", weight = "bolder", wrap = true },
                 new { type = "TextBlock", text = "${scheduledLabel}", size = "small", isSubtle = true, wrap = true, spacing = "none" },
                 new { type = "TextBlock", text = "${explanation}", size = "small", wrap = true, spacing = "medium" },
-                new { type = "TextBlock", text = "SCHEDULE METADATA ONLY · NOT OFFICIAL FLIGHT TELEMETRY", size = "small", isSubtle = true, wrap = true, spacing = "medium" }
+                new { type = "TextBlock", text = "SCHEDULE METADATA ONLY · NOT OFFICIAL FLIGHT TELEMETRY", size = "small", isSubtle = true, wrap = true, spacing = "medium" },
+                new { type = "TextBlock", text = "UPDATED ${sourceObserved}", size = "small", isSubtle = true, wrap = true, spacing = "none" }
             }
+        };
+
+        var actions = new List<object>
+        {
+            new { type = "Action.Execute", title = "Refresh Schedule", verb = "refresh" }
         };
 
         if (TryGetTrustedDetailsUri(launch?.DetailsUri, out var detailsUri))
         {
-            card["actions"] = new object[]
-            {
-                new { type = "Action.OpenUrl", title = "Open Launch Library 2 Record", url = detailsUri.AbsoluteUri }
-            };
+            actions.Add(new { type = "Action.OpenUrl", title = "Open Launch Library 2 Record", url = detailsUri.AbsoluteUri });
         }
+
+        card["actions"] = actions;
 
         var data = new Dictionary<string, string>
         {
