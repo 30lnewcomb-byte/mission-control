@@ -36,7 +36,7 @@ if (Test-Path $archivePath) {
 Write-Host ''
 Write-Host 'Mission Control - Windows preview publisher' -ForegroundColor Cyan
 Write-Host 'Publishing a self-contained Windows x64 desktop build...' -ForegroundColor Cyan
-Write-Host 'Ori Small MC itself remains optional and is not bundled into this archive.'
+Write-Host 'The package includes the unified installer; the multi-gigabyte model weights are fetched during AI setup.'
 Write-Host ''
 
 $publishArgs = @(
@@ -67,28 +67,30 @@ New-Item -ItemType Directory -Path $aiScriptDirectory -Force | Out-Null
 New-Item -ItemType Directory -Path $modelDirectory -Force | Out-Null
 Copy-Item -LiteralPath (Join-Path $repoRoot 'scripts\Install-OriSmallMC.ps1') -Destination (Join-Path $aiScriptDirectory 'Install-OriSmallMC.ps1') -Force
 Copy-Item -LiteralPath (Join-Path $repoRoot 'models\OriSmallMC.Modelfile') -Destination (Join-Path $modelDirectory 'OriSmallMC.Modelfile') -Force
+Copy-Item -LiteralPath (Join-Path $repoRoot 'scripts\Install-MissionControl.ps1') -Destination (Join-Path $outputDirectory 'Install-MissionControl.ps1') -Force
 
 $bundleReadme = @'
 MISSION CONTROL - WINDOWS X64 PREVIEW
 
-1. Extract the ZIP to a folder you control.
-2. Run MissionControl.Desktop.exe.
-3. The launch panel reads Launch Library 2 schedule metadata for launch sites
-   explicitly identified as being in the United States.
-4. Countdown math is local and deterministic. Schedule time passing does not
-   confirm liftoff; this preview does not yet contain an authoritative
-   NASA/SpaceX liftoff-status adapter.
-5. Ori Small MC is optional. To install Ollama and the local model, open
-   PowerShell in this extracted folder and run:
-       .\scripts\Install-OriSmallMC.ps1
-   That setup downloads several gigabytes and may take time. It is not required
-   to open the dashboard.
-6. This is an early desktop preview, not the final one-command installer.
-   The real Windows Widgets provider, weather integration, official live
-   coverage resolver, updater, and uninstaller are not included yet.
+1. Extract this ZIP to a folder you control.
+2. Open PowerShell in that extracted folder and run:
+       .\Install-MissionControl.ps1
+3. The installer copies Mission Control into your user Programs folder and
+   creates Start menu and desktop shortcuts. Administrator access is not needed.
+4. The installer offers to install Ori Small MC too. Its first setup downloads
+   Ollama and the Qwen3.5 4B base model (several gigabytes); press Enter to
+   accept the default Yes, or type N to skip. The model weights are not bundled
+   in this ZIP. If skipped or if setup fails, use the Start menu entry
+   "Install Ori Small MC" to retry later.
+5. Ori Small MC is a general-purpose local chat assistant, not just a launch bot.
+   Chats are sent to the Ollama service on this PC; Mission Control does not
+   upload them to a remote AI API.
+6. This is still an early preview. A real Windows Widgets provider, weather
+   integration, official live coverage/status adapters, signed installer,
+   updater, and uninstaller are not included yet.
 
-The app does not need administrator rights just to launch. Do not share private
-files with the local model unless you intend to include that text in the chat.
+Countdown math is local and deterministic. A scheduled time passing does not
+confirm liftoff; this preview has no authoritative NASA/SpaceX liftoff adapter.
 '@
 
 Set-Content -LiteralPath (Join-Path $outputDirectory 'README.txt') -Value $bundleReadme -Encoding utf8
