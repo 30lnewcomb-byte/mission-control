@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MissionControl.Desktop", "s
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MissionControl.Core.Tests", "tests\MissionControl.Core.Tests\MissionControl.Core.Tests.csproj", "{8E0F1D15-99C9-495A-98F3-F344B3E77C51}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MissionControl.WidgetProvider", "src\MissionControl.WidgetProvider\MissionControl.WidgetProvider.csproj", "{BF54CC42-CC5B-47DE-92FE-8DA5E90F1B62}"
+EndProject
 Global
     GlobalSection(SolutionConfigurationPlatforms) = preSolution
         Debug|Any CPU = Debug|Any CPU
