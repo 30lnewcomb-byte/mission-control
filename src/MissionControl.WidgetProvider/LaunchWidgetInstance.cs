@@ -164,6 +164,5 @@ internal sealed class LaunchWidgetInstance : IDisposable
         }
 
         _httpClient.Dispose();
-        _refreshGate.Dispose();
     }
 }

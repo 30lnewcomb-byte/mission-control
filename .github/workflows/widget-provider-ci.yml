@@ -1,0 +1,35 @@
+name: Windows Widget Provider CI
+
+on:
+  push:
+    branches: [feature/native-widgets-provider]
+    paths:
+      - 'src/MissionControl.WidgetProvider/**'
+      - 'src/MissionControl.Core/**'
+      - 'tests/MissionControl.Core.Tests/**'
+      - '.github/workflows/widget-provider-ci.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/MissionControl.WidgetProvider/**'
+      - 'src/MissionControl.Core/**'
+      - 'tests/MissionControl.Core.Tests/**'
+      - '.github/workflows/widget-provider-ci.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-widget-provider:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - name: Test shared launch and widget payload logic
+        run: dotnet test tests/MissionControl.Core.Tests/MissionControl.Core.Tests.csproj --configuration Release
+      - name: Build packaged widget provider
+        shell: pwsh
+        run: dotnet build src/MissionControl.WidgetProvider/MissionControl.WidgetProvider.csproj --configuration Release -p:AppxPackageSigningEnabled=false
