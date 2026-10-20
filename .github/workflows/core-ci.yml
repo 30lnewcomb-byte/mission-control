@@ -18,6 +18,32 @@ jobs:
         with:
           dotnet-version: 8.0.x
 
+      - name: Validate PowerShell setup scripts
+        shell: pwsh
+        run: |
+          $scriptPaths = @(
+            'scripts/Install-MissionControl.ps1',
+            'scripts/Install-OriSmallMC.ps1',
+            'scripts/Publish-MissionControl.ps1'
+          )
+          foreach ($relativePath in $scriptPaths) {
+            $scriptPath = Join-Path $env:GITHUB_WORKSPACE $relativePath
+            if (-not (Test-Path -LiteralPath $scriptPath -PathType Leaf)) {
+              throw "Required PowerShell script not found: $relativePath"
+            }
+            $tokens = $null
+            $parseErrors = $null
+            $null = [System.Management.Automation.Language.Parser]::ParseFile(
+              $scriptPath,
+              [ref]$tokens,
+              [ref]$parseErrors
+            )
+            if ($parseErrors.Count -gt 0) {
+              $details = ($parseErrors | ForEach-Object { $_.Message }) -join [Environment]::NewLine
+              throw "PowerShell syntax errors in $($relativePath): $details"
+            }
+          }
+
       - name: Test core behavior
         run: dotnet test tests/MissionControl.Core.Tests/MissionControl.Core.Tests.csproj --configuration Release
 
