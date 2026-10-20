@@ -23,6 +23,8 @@ jobs:
         run: |
           $scriptPaths = @(
             'scripts/Install-MissionControl.ps1',
+            'scripts/Install-AI-Model.ps1',
+            'scripts/Install-OriPlatformAI.ps1',
             'scripts/Install-OriSmallMC.ps1',
             'scripts/Publish-MissionControl.ps1'
           )
@@ -64,6 +66,8 @@ jobs:
           $requiredPaths = @(
             'MissionControl.Desktop.exe',
             'Install-MissionControl.ps1',
+            'scripts\Install-AI-Model.ps1',
+            'scripts\Install-OriPlatformAI.ps1',
             'scripts\Install-OriSmallMC.ps1',
             'models\OriSmallMC.Modelfile',
             'README.txt'
