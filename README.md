@@ -9,7 +9,7 @@ Mission Control is a Windows 11 space-launch companion planned around two interf
 
 ## Current status
 
-**Foundation and local-AI integration stage — not yet an installable app release.** The deterministic launch countdown core, core tests, Windows CI, an Ollama chat client, a model Modelfile, and a local model setup script are in the repository. The complete desktop UI, actual Windows Widgets provider, launch/weather data adapters, and final one-command app installer still need to be built and tested.
+**Foundation stage — not yet an installable app release.** The repository contains the deterministic countdown core, Windows CI, the Ori Small MC Ollama client/setup, and a Launch Library 2 upcoming-launch reader with response caching and a US launch-site filter. Automated coverage is being added for the AI client and schedule reader. The desktop UI, actual Windows Widgets provider, authoritative NASA/SpaceX status and coverage adapters, weather integration, shared local service, and final one-command installer are still unfinished.
 
 ## Ori Small MC
 
@@ -34,14 +34,12 @@ Ori Small MC supports general conversation, learning, writing, brainstorming, co
 6. **Safe installation.** The eventual one-paste installer must verify downloads and provide clear errors and uninstall/update paths.
 7. **Graceful AI fallback.** Mission Control must remain useful if Ollama is not installed or running.
 
-## Planned data sources
+## Launch schedule and status trust
 
-- Launch Library 2 for launch schedule and mission metadata.
-- Official NASA/SpaceX sources for launch-status confirmation and coverage links where available.
-- A weather provider for launch-site and home weather.
+`src/MissionControl.Core/LaunchLibrary2Client.cs` reads the LL2 v2.3.0 upcoming-launch endpoint. It caches successful responses in memory for ten minutes by default and can filter to launch sites whose country code is explicitly `US`; unknown locations are not guessed. LL2 data is schedule metadata only. The adapter never sets an actual liftoff timestamp and does not promote an LL2 “Launch in Flight” label into the canonical in-flight state. A separate trusted status adapter is still required before Mission Control may show T+.
 
-A scheduled time from a calendar API alone is not sufficient evidence to switch to T+.
+Planned next data sources are official NASA/SpaceX status and coverage links plus a weather provider for launch-site and home weather. A scheduled time from a calendar API alone is not sufficient evidence to switch to T+.
 
 ## Development
 
-The .NET core is under `src/MissionControl.Core`. See `docs/architecture.md` for the planned app structure and `scripts/Install-OriSmallMC.ps1` for the current local model setup. Repository code has not yet been validated as a complete Windows desktop application.
+The .NET core is under `src/MissionControl.Core`. Run the test suite with `dotnet test tests/MissionControl.Core.Tests/MissionControl.Core.Tests.csproj --configuration Release`. See `docs/architecture.md` for current boundaries and next steps, and `scripts/Install-OriSmallMC.ps1` for local model setup. This is not yet a complete Windows desktop application.
