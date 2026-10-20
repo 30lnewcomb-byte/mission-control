@@ -13,11 +13,16 @@ public sealed class OriSmallMcClient
     public const string DefaultModel = "ori-small-mc";
 
     private readonly HttpClient _httpClient;
+    private readonly Uri _chatEndpoint;
     private readonly string _model;
 
     public OriSmallMcClient(HttpClient? httpClient = null, string model = DefaultModel)
     {
-        _httpClient = httpClient ?? new HttpClient { BaseAddress = new Uri(DefaultEndpoint) };
+        _httpClient = httpClient ?? new HttpClient();
+        // Resolve the endpoint once so an injected HttpClient without BaseAddress works,
+        // while still honoring a custom BaseAddress supplied by the host or tests.
+        var apiBase = _httpClient.BaseAddress ?? new Uri(DefaultEndpoint);
+        _chatEndpoint = new Uri(apiBase, "api/chat");
         _model = string.IsNullOrWhiteSpace(model)
             ? throw new ArgumentException("A model name is required.", nameof(model))
             : model;
@@ -49,7 +54,7 @@ public sealed class OriSmallMcClient
         };
 
         using var response = await _httpClient.PostAsJsonAsync(
-            "api/chat",
+            _chatEndpoint,
             request,
             cancellationToken).ConfigureAwait(false);
 
