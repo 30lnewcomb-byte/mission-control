@@ -32,4 +32,4 @@ jobs:
         run: dotnet test tests/MissionControl.Core.Tests/MissionControl.Core.Tests.csproj --configuration Release
       - name: Build packaged widget provider
         shell: pwsh
-        run: dotnet build src/MissionControl.WidgetProvider/MissionControl.WidgetProvider.csproj --configuration Release -p:AppxPackageSigningEnabled=false
+        run: dotnet build src/MissionControl.WidgetProvider/MissionControl.WidgetProvider.csproj --configuration Release -p:Platform=x64 -p:AppxPackageSigningEnabled=false
