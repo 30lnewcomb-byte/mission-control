@@ -74,6 +74,12 @@ public partial class MainWindow : Window
         _ollamaHttpClient.Dispose();
     }
 
+    private void PinWindowButton_Click(object sender, RoutedEventArgs e)
+    {
+        Topmost = !Topmost;
+        PinWindowButton.Content = Topmost ? "UNPIN WINDOW" : "PIN WINDOW";
+    }
+
     private async void RefreshLaunches_Click(object sender, RoutedEventArgs e) =>
         await RefreshLaunchesAsync(silent: false);
 
