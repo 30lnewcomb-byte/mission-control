@@ -21,5 +21,14 @@ jobs:
       - name: Test core behavior
         run: dotnet test tests/MissionControl.Core.Tests/MissionControl.Core.Tests.csproj --configuration Release
 
-      - name: Build Windows desktop dashboard
-        run: dotnet build src/MissionControl.Desktop/MissionControl.Desktop.csproj --configuration Release
+      - name: Publish self-contained Windows preview
+        shell: pwsh
+        run: ./scripts/Publish-MissionControl.ps1
+
+      - name: Upload Windows preview ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: MissionControl-Windows-x64-preview
+          path: artifacts/MissionControl-win-x64.zip
+          if-no-files-found: error
+          retention-days: 14
