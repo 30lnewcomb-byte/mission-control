@@ -117,6 +117,21 @@ public sealed class LaunchLibrary2Client
         }
     }
 
+    /// <summary>
+    /// Returns only launches with an explicit US launch-site country code.
+    /// Entries without a known country are excluded rather than guessed.
+    /// </summary>
+    public async Task<IReadOnlyList<LaunchLibrary2Launch>> GetUpcomingUsLaunchesAsync(
+        CancellationToken cancellationToken = default)
+    {
+        var launches = await GetUpcomingLaunchesAsync(cancellationToken).ConfigureAwait(false);
+        var usLaunches = launches
+            .Where(launch => string.Equals(launch.CountryCode, "US", StringComparison.OrdinalIgnoreCase))
+            .ToArray();
+
+        return Array.AsReadOnly(usLaunches);
+    }
+
     private bool HasFreshCache() =>
         _cachedLaunches is not null &&
         DateTimeOffset.UtcNow - _cachedAtUtc < _cacheDuration;
