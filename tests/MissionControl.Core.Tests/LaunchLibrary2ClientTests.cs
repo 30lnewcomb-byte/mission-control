@@ -108,6 +108,61 @@ public sealed class LaunchLibrary2ClientTests
     }
 
     [Fact]
+    public async Task GetUpcomingUsLaunchesAsyncExcludesLaunchesOutsideTheUnitedStates()
+    {
+        const string payload = """
+        {
+          "results": [
+            {
+              "id": "us-1",
+              "name": "US Launch",
+              "net": "2026-10-21T16:00:00Z",
+              "status": { "name": "Go for Launch" },
+              "pad": {
+                "name": "US Pad",
+                "location": {
+                  "name": "Kennedy Space Center",
+                  "country": { "alpha_2_code": "US" }
+                }
+              }
+            },
+            {
+              "id": "jp-1",
+              "name": "Japan Launch",
+              "net": "2026-10-22T16:00:00Z",
+              "status": { "name": "Go for Launch" },
+              "pad": {
+                "name": "Japan Pad",
+                "location": {
+                  "name": "Tanegashima Space Center",
+                  "country": { "alpha_2_code": "JP" }
+                }
+              }
+            },
+            {
+              "id": "unknown-1",
+              "name": "Unknown Site Launch",
+              "net": "2026-10-23T16:00:00Z",
+              "status": { "name": "Go for Launch" },
+              "pad": { "name": "Unmapped Pad" }
+            }
+          ]
+        }
+        """;
+
+        var handler = new StubHttpMessageHandler(
+            (_, _) => Task.FromResult(JsonResponse(HttpStatusCode.OK, payload)));
+        using var httpClient = new HttpClient(handler);
+        var client = new LaunchLibrary2Client(httpClient);
+
+        var launches = await client.GetUpcomingUsLaunchesAsync();
+
+        var launch = Assert.Single(launches);
+        Assert.Equal("us-1", launch.State.LaunchId);
+        Assert.Equal("US", launch.CountryCode);
+    }
+
+    [Fact]
     public async Task GetUpcomingLaunchesAsyncIncludesDetailsWhenTheApiReturnsAnError()
     {
         var handler = new StubHttpMessageHandler(
