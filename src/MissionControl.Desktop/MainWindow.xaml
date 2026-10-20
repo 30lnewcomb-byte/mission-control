@@ -332,7 +332,7 @@
                                  TextWrapping="Wrap"
                                  VerticalScrollBarVisibility="Auto"
                                  VerticalContentAlignment="Center"
-                                 ToolTip="Ask Ori Small MC anything. Enter sends; Shift+Enter adds a line."
+                                 ToolTip="Ask Ori anything. Choose a local model above. Enter sends; Shift+Enter adds a line."
                                  KeyDown="ChatInput_KeyDown" />
                         <Button x:Name="SendChatButton"
                                 Grid.Column="1"
