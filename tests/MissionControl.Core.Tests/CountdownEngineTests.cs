@@ -1,4 +1,5 @@
 using MissionControl.Core;
+using Xunit;
 
 namespace MissionControl.Core.Tests;
 
