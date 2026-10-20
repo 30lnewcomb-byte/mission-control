@@ -1,0 +1,22 @@
+# .NET
+**/bin/
+**/obj/
+.vs/
+*.user
+*.suo
+
+# Build/package output
+artifacts/
+AppPackages/
+*.msix
+*.msixbundle
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+appsettings.Local.json
+
+# OS/editor
+.DS_Store
+Thumbs.db
